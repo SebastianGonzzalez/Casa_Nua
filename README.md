@@ -31,26 +31,25 @@ La aplicación está construida con HTML, CSS y JavaScript puro, sin dependencia
 
 ```text
 proyecto-parcial/
-├── assets/
-│   ├── css/
-│   │   └── styles.css
-│   └── js/
-│       ├── app.js
-│       ├── auth.js
-│       ├── clients.js
-│       ├── config.js
-│       ├── dashboard.js
-│       ├── details.js
-│       ├── icons.js
-│       ├── products.js
-│       ├── profile.js
-│       ├── purchase.js
-│       ├── purchases.js
-│       ├── shell.js
-│       ├── storage.js
-│       ├── users.js
-│       ├── utils.js
-│       └── validators.js
+├── css/
+│   └── styles.css
+├── js/
+│   ├── app.js
+│   ├── auth.js
+│   ├── clients.js
+│   ├── config.js
+│   ├── dashboard.js
+│   ├── details.js
+│   ├── icons.js
+│   ├── products.js
+│   ├── profile.js
+│   ├── purchase.js
+│   ├── purchases.js
+│   ├── shell.js
+│   ├── storage.js
+│   ├── users.js
+│   ├── utils.js
+│   └── validators.js
 ├── index.html
 ├── register.html
 ├── dashboard.html
@@ -62,8 +61,7 @@ proyecto-parcial/
 ├── purchases.html
 ├── details.html
 ├── ENTREGA.md
-├── README.md
-└── assets/
+└── README.md
 ```
 
 ## Flujos principales
