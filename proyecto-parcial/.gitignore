@@ -1,0 +1,24 @@
+# Dependencias localmente instaladas
+node_modules/
+
+# Archivos de entorno
+.env
+.env.*
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor/IDE
+.vscode/
+.idea/
+
+# Datos locales del proyecto
+*.local
+
+# Carpeta de caché
+.cache/
