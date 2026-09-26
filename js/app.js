@@ -10,6 +10,7 @@ import { initProducts } from './products.js';
 import { initPurchase } from './purchase.js';
 import { initPurchases } from './purchases.js';
 import { initDetails } from './details.js';
+import { currentClient, currentLogin } from './storage.js';
 
 function triggerAuthAnimation() {
   const body = document.body;
@@ -45,6 +46,35 @@ function setAuthView(view) {
   }
 }
 
+function redirectToSessionHome(login = currentLogin()) {
+  if (!login) return;
+  const client = currentClient();
+  const target = login.role === 'Admin'
+    ? 'dashboard.html'
+    : (client?.complete ? 'dashboard.html' : 'profile.html');
+  window.location.replace(target);
+}
+
+function enforceSessionState() {
+  const page = pageName();
+  const login = currentLogin();
+  const isAuthPage = page === 'login' || page === 'register';
+
+  if (login && isAuthPage) {
+    redirectToSessionHome(login);
+    return;
+  }
+
+  if (!login && !isAuthPage && page) {
+    window.location.replace('index.html');
+    return;
+  }
+
+  if (!login && isAuthPage) {
+    window.history.replaceState(null, '', 'index.html');
+  }
+}
+
 function start() {
   seedDatabase();
 
@@ -52,6 +82,11 @@ function start() {
   const isAuthPage = page === 'login' || page === 'register';
 
   if (isAuthPage) {
+    const login = currentLogin();
+    if (login) {
+      redirectToSessionHome(login);
+      return;
+    }
     triggerAuthAnimation();
   }
 
@@ -91,6 +126,8 @@ function start() {
 
 document.addEventListener('DOMContentLoaded', start);
 window.addEventListener('pageshow', () => {
+  enforceSessionState();
+
   const page = pageName();
   if (page === 'login' || page === 'register') {
     triggerAuthAnimation();

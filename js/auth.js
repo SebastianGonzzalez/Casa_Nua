@@ -14,9 +14,10 @@ import {
 function redirectForRole(login) {
   if (!login) return;
   const client = currentClient();
-  window.location.href = login.role === 'Admin'
+  const target = login.role === 'Admin'
     ? 'dashboard.html'
     : (client?.complete ? 'dashboard.html' : 'profile.html');
+  window.location.replace(target);
 }
 
 export function initLogin() {
@@ -173,7 +174,7 @@ export function initRegister() {
 export function initLogout() {
   document.querySelector('[data-action="logout"]')?.addEventListener('click', () => {
     clearSession();
-    window.location.href = 'index.html';
+    window.location.replace('index.html');
   });
 }
 
@@ -187,34 +188,34 @@ export function guardPage(page) {
   }
 
   if (!login) {
-    window.location.href = 'index.html';
+    window.location.replace('index.html');
     return false;
   }
 
   if (login.status !== 'Activo') {
     clearSession();
-    window.location.href = 'index.html';
+    window.location.replace('index.html');
     return false;
   }
 
   if (!APP_CONFIG.roles.includes(login.role)) {
     clearSession();
-    window.location.href = 'index.html';
+    window.location.replace('index.html');
     return false;
   }
 
   if (APP_CONFIG.pages.adminOnly.includes(page) && login.role !== 'Admin') {
-    window.location.href = 'dashboard.html';
+    window.location.replace('dashboard.html');
     return false;
   }
 
   if (page === 'purchase' && login.role !== 'Cliente') {
-    window.location.href = 'dashboard.html';
+    window.location.replace('dashboard.html');
     return false;
   }
 
   if (page === 'profile' && login.role !== 'Cliente') {
-    window.location.href = 'dashboard.html';
+    window.location.replace('dashboard.html');
     return false;
   }
 
