@@ -68,23 +68,65 @@ export function writeDb(db) {
 
 export function getSession() {
   try {
-    const session = JSON.parse(localStorage.getItem(APP_CONFIG.sessionKey));
-    return session && typeof session === 'object' ? session : null;
+    const storedSession = localStorage.getItem(APP_CONFIG.sessionKey);
+    if (storedSession) {
+      const session = JSON.parse(storedSession);
+      if (session && typeof session === 'object') return session;
+    }
+
+    const sessionStorageValue = sessionStorage.getItem(APP_CONFIG.sessionKey);
+    if (sessionStorageValue) {
+      const session = JSON.parse(sessionStorageValue);
+      if (session && typeof session === 'object') return session;
+    }
+
+    return null;
   } catch {
     return null;
   }
 }
 
-export function setSession(login) {
-  localStorage.setItem(APP_CONFIG.sessionKey, JSON.stringify({
+export function getRememberedLogin() {
+  try {
+    const remembered = JSON.parse(localStorage.getItem('rememberedLogin_v2'));
+    return remembered && typeof remembered === 'object' ? remembered : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setRememberedLogin(email, rememberMe) {
+  if (!email || !rememberMe) {
+    localStorage.removeItem('rememberedLogin_v2');
+    return;
+  }
+
+  localStorage.setItem('rememberedLogin_v2', JSON.stringify({ email }));
+}
+
+export function setSession(login, rememberMe = true) {
+  const payload = {
     loginId: login.id,
     role: login.role,
-    email: login.email
-  }));
+    email: login.email,
+    rememberMe
+  };
+
+  localStorage.removeItem(APP_CONFIG.sessionKey);
+  sessionStorage.removeItem(APP_CONFIG.sessionKey);
+
+  if (rememberMe) {
+    localStorage.setItem('rememberedLogin_v2', JSON.stringify({ email: login.email }));
+    localStorage.setItem(APP_CONFIG.sessionKey, JSON.stringify(payload));
+  } else {
+    sessionStorage.setItem(APP_CONFIG.sessionKey, JSON.stringify(payload));
+    localStorage.removeItem('rememberedLogin_v2');
+  }
 }
 
 export function clearSession() {
   localStorage.removeItem(APP_CONFIG.sessionKey);
+  sessionStorage.removeItem(APP_CONFIG.sessionKey);
 }
 
 export function nextId(items) {

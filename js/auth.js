@@ -1,7 +1,7 @@
 import { APP_CONFIG } from './config.js';
 import {
   readDb, writeDb, setSession, clearSession, currentLogin, currentClient,
-  nextId, nowIso
+  nextId, nowIso, getRememberedLogin
 } from './storage.js';
 import {
   clearFieldErrors, focusFirstError, normalizeEmail, setFieldError,
@@ -22,6 +22,15 @@ function redirectForRole(login) {
 export function initLogin() {
   const form = document.getElementById('loginForm');
   if (!form) return;
+
+  const emailInput = form.querySelector('#email');
+  const rememberInput = form.querySelector('input[name="remember"]');
+  const rememberedLogin = getRememberedLogin();
+
+  if (rememberedLogin?.email) {
+    emailInput.value = rememberedLogin.email;
+    if (rememberInput) rememberInput.checked = true;
+  }
 
   form.addEventListener('submit', event => {
     event.preventDefault();
@@ -80,7 +89,15 @@ export function initLogin() {
       return;
     }
 
-    setSession(login);
+    const rememberMe = form.querySelector('input[name="remember"]')?.checked ?? true;
+
+    if (rememberMe) {
+      localStorage.setItem('rememberedLogin_v2', JSON.stringify({ email: email }));
+    } else {
+      localStorage.removeItem('rememberedLogin_v2');
+    }
+
+    setSession(login, rememberMe);
     form.querySelector('button[type="submit"]').disabled = true;
     redirectForRole(login);
   });
