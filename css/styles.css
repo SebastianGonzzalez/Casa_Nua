@@ -272,6 +272,21 @@ h3 { font-size: 1.35rem; line-height: 1.1; }
   border-left: 1px solid rgba(255,255,255,0.1);
   backdrop-filter: blur(10px);
 }
+.auth-form-stack {
+  position: relative;
+  width: min(100%, 560px);
+}
+.auth-panel {
+  display: none;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+.auth-panel.active {
+  display: block;
+  opacity: 1;
+  transform: translateX(0);
+}
 .auth-form-box {
   width: min(100%, 340px);
   opacity: 1;

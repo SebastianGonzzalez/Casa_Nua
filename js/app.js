@@ -23,6 +23,28 @@ function triggerAuthAnimation() {
   }, 420);
 }
 
+function setAuthView(view) {
+  const panels = document.querySelectorAll('.auth-panel');
+  const toggles = document.querySelectorAll('[data-auth-toggle]');
+
+  panels.forEach(panel => {
+    const isActive = panel.dataset.authPanel === view;
+    panel.classList.toggle('active', isActive);
+  });
+
+  toggles.forEach(link => {
+    const isCurrent = link.dataset.authToggle === view;
+    link.setAttribute('aria-current', isCurrent ? 'page' : 'false');
+  });
+
+  const formTitle = document.getElementById('authTitle');
+  if (formTitle) {
+    formTitle.textContent = view === 'register'
+      ? '¡Únete a la\nCasa del Libro!'
+      : '¡Bienvenido a la\nCasa del Libro!';
+  }
+}
+
 function start() {
   seedDatabase();
 
@@ -33,19 +55,23 @@ function start() {
     triggerAuthAnimation();
   }
 
-  const authLinks = document.querySelectorAll('a[href="index.html"], a[href="register.html"]');
+  const authLinks = document.querySelectorAll('[data-auth-toggle]');
   authLinks.forEach(link => {
     link.addEventListener('click', event => {
-      const target = link.getAttribute('href');
-      if (!target || target === location.pathname.split('/').pop()) return;
+      const target = link.dataset.authToggle;
+      if (!target) return;
       event.preventDefault();
-      document.body.classList.remove('auth-page-enter');
-      document.body.classList.add('auth-page-exit');
+      setAuthView(target);
+      document.body.classList.remove('auth-page-exit');
+      document.body.classList.add('auth-page-enter');
       window.setTimeout(() => {
-        window.location.href = target;
-      }, 220);
+        document.body.classList.remove('auth-page-enter');
+      }, 380);
     });
   });
+
+  const initialView = document.body.dataset.page === 'register' || window.location.hash === '#register' ? 'register' : 'login';
+  setAuthView(initialView);
 
   if (!guardPage(page)) return;
 

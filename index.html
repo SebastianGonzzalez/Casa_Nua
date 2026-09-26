@@ -18,52 +18,94 @@
         </div>
       </div>
 
-      <section class="auth-card" aria-labelledby="loginTitle">
-        <div class="auth-hero">
+      <section class="auth-card" aria-labelledby="authTitle">
+        <div class="auth-hero auth-hero-toggle">
           <div class="auth-copy">
             <div class="auth-copy-badge">Bienvenidos</div>
-            <h1 id="loginTitle">¡Bienvenido a la<br>Casa del Libro!</h1>
+            <h1 id="authTitle">¡Bienvenido a la<br>Casa del Libro!</h1>
             <p>Encuentra tu próxima lectura.</p>
             <span>Descubre libros, ediciones especiales y tesoros literarios para cada pasión.</span>
             <div class="auth-copy-tag">Biblioteca &amp; novedades editoriales</div>
           </div>
 
           <div class="auth-form-wrap">
-            <div class="auth-form-box">
-              <h2>Login</h2>
-              <form id="loginForm" novalidate>
-                <div class="field">
-                  <label for="email" class="sr-only">Correo electrónico</label>
-                  <div class="field-input-wrap">
-                    <span class="field-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12.5a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12.5Zm0 1.75c-3.04 0-5.5 1.72-5.5 3.85V18h11v-.9c0-2.13-2.46-3.85-5.5-3.85Z"/></svg>
-                    </span>
-                    <input class="input" id="email" name="email" type="email" autocomplete="username" maxlength="120" spellcheck="false" placeholder="Correo" required>
-                  </div>
-                  <div class="error" data-error-for="email" aria-live="polite"></div>
-                </div>
+            <div class="auth-form-stack">
+              <div class="auth-panel active" data-auth-panel="login">
+                <div class="auth-form-box">
+                  <h2>Login</h2>
+                  <form id="loginForm" novalidate>
+                    <div class="field">
+                      <label for="email" class="sr-only">Correo electrónico</label>
+                      <div class="field-input-wrap">
+                        <span class="field-icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12.5a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12.5Zm0 1.75c-3.04 0-5.5 1.72-5.5 3.85V18h11v-.9c0-2.13-2.46-3.85-5.5-3.85Z"/></svg>
+                        </span>
+                        <input class="input" id="email" name="email" type="email" autocomplete="username" maxlength="120" spellcheck="false" placeholder="Correo" required>
+                      </div>
+                      <div class="error" data-error-for="email" aria-live="polite"></div>
+                    </div>
 
-                <div class="field mt-2">
-                  <label for="password" class="sr-only">Contraseña</label>
-                  <div class="field-input-wrap">
-                    <span class="field-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 9h-1V7a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-5 5.5A1.5 1.5 0 1 1 13.5 13 1.5 1.5 0 0 1 12 14.5ZM14 9H10V7a2 2 0 1 1 4 0Z"/></svg>
-                    </span>
-                    <input class="input" id="password" name="password" type="password" autocomplete="current-password" maxlength="128" placeholder="Contraseña" required>
-                  </div>
-                  <div class="error" data-error-for="password" aria-live="polite"></div>
-                </div>
+                    <div class="field mt-2">
+                      <label for="password" class="sr-only">Contraseña</label>
+                      <div class="field-input-wrap">
+                        <span class="field-icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 9h-1V7a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-5 5.5A1.5 1.5 0 1 1 13.5 13 1.5 1.5 0 0 1 12 14.5ZM14 9H10V7a2 2 0 1 1 4 0Z"/></svg>
+                        </span>
+                        <input class="input" id="password" name="password" type="password" autocomplete="current-password" maxlength="128" placeholder="Contraseña" required>
+                      </div>
+                      <div class="error" data-error-for="password" aria-live="polite"></div>
+                    </div>
 
-                <div class="auth-options">
-                  <label class="check-row">
-                    <input type="checkbox" name="remember" checked>
-                    <span>Recuérdame</span>
-                  </label>
-                </div>
+                    <div class="auth-options">
+                      <label class="check-row">
+                        <input type="checkbox" name="remember" checked>
+                        <span>Recuérdame</span>
+                      </label>
+                    </div>
 
-                <button class="btn auth-btn" type="submit">Login</button>
-                <p class="auth-footer">¿No tienes cuenta?<a href="register.html"> Regístrate</a></p>
-              </form>
+                    <button class="btn auth-btn" type="submit">Login</button>
+                    <p class="auth-footer">¿No tienes cuenta?<a href="#register" data-auth-toggle="register"> Regístrate</a></p>
+                  </form>
+                </div>
+              </div>
+
+              <div class="auth-panel" data-auth-panel="register">
+                <div class="auth-form-box auth-form-box-register">
+                  <h2>Registro</h2>
+                  <form id="registerForm" novalidate>
+                    <div class="form-grid auth-register-grid">
+                      <div class="field">
+                        <label for="nombre">Nombre</label>
+                        <input class="input" id="nombre" name="nombre" type="text" autocomplete="given-name" minlength="2" maxlength="60" placeholder="Tu nombre" required>
+                        <div class="error" data-error-for="nombre" aria-live="polite"></div>
+                      </div>
+                      <div class="field">
+                        <label for="apellido">Apellido</label>
+                        <input class="input" id="apellido" name="apellido" type="text" autocomplete="family-name" minlength="2" maxlength="60" placeholder="Tu apellido" required>
+                        <div class="error" data-error-for="apellido" aria-live="polite"></div>
+                      </div>
+                      <div class="field full">
+                        <label for="register-email">Correo electrónico</label>
+                        <input class="input" id="register-email" name="email" type="email" autocomplete="email" maxlength="120" spellcheck="false" placeholder="nombre@dominio.com" required>
+                        <div class="error" data-error-for="email" aria-live="polite"></div>
+                      </div>
+                      <div class="field">
+                        <label for="register-password">Contraseña</label>
+                        <input class="input" id="register-password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Mínimo 8 caracteres" required>
+                        <div class="error" data-error-for="password" aria-live="polite"></div>
+                      </div>
+                      <div class="field">
+                        <label for="confirmPassword">Confirmar contraseña</label>
+                        <input class="input" id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Repite tu contraseña" required>
+                        <div class="error" data-error-for="confirmPassword" aria-live="polite"></div>
+                      </div>
+                    </div>
+                    <div id="registerStatus" class="success-msg mt-2" tabindex="-1" aria-live="polite"></div>
+                    <button class="btn mt-2 auth-btn" type="submit">Registrarse</button>
+                    <div class="auth-footer">¿Ya tienes cuenta? <a href="#login" data-auth-toggle="login">Inicia sesión</a></div>
+                  </form>
+                </div>
+              </div>
             </div>
           </div>
         </div>

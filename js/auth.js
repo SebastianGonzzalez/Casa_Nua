@@ -112,12 +112,18 @@ export function initRegister() {
     const ids = ['nombre', 'apellido', 'email', 'password', 'confirmPassword'];
     clearFieldErrors(ids);
 
+    const nombreInput = form.querySelector('#nombre');
+    const apellidoInput = form.querySelector('#apellido');
+    const emailInput = form.querySelector('input[name="email"]');
+    const passwordInput = form.querySelector('input[name="password"]');
+    const confirmPasswordInput = form.querySelector('#confirmPassword');
+
     const result = validateUserData({
-      nombre: document.getElementById('nombre').value,
-      apellido: document.getElementById('apellido').value,
-      email: document.getElementById('email').value,
-      password: document.getElementById('password').value,
-      confirmPassword: document.getElementById('confirmPassword').value
+      nombre: nombreInput.value,
+      apellido: apellidoInput.value,
+      email: emailInput.value,
+      password: passwordInput.value,
+      confirmPassword: confirmPasswordInput.value
     });
 
     Object.entries(result.errors).forEach(([id, message]) => setFieldError(id, message));
@@ -129,7 +135,7 @@ export function initRegister() {
     const db = readDb();
     if (emailAlreadyExists(db, result.values.email)) {
       setFieldError('email', 'Este correo ya está registrado. Prueba iniciar sesión o usa otro correo.');
-      document.getElementById('email').focus();
+      emailInput.focus();
       return;
     }
 
@@ -139,7 +145,7 @@ export function initRegister() {
     db.login.push({
       id: loginId,
       email: result.values.email,
-      password: document.getElementById('password').value,
+      password: passwordInput.value,
       role: 'Cliente',
       status: 'Pendiente',
       createdAt
