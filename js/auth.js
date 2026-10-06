@@ -4,14 +4,13 @@ import {
   nextId, nowIso, getRememberedLogin
 } from './storage.js';
 import {
-  clearFieldErrors, focusFirstError, normalizeEmail, setFieldError,
-  showToast
+  clearFieldErrors, focusFirstError, normalizeEmail, setFieldError
 } from './utils.js';
 import {
   validateUserData, emailAlreadyExists, validateRoleInput
 } from './validators.js';
 
-function redirectForRole(login) {
+export function redirectForRole(login) {
   if (!login) return;
   const client = currentClient();
   const target = login.role === 'Admin'
@@ -91,13 +90,6 @@ export function initLogin() {
     }
 
     const rememberMe = form.querySelector('input[name="remember"]')?.checked ?? true;
-
-    if (rememberMe) {
-      localStorage.setItem('rememberedLogin_v2', JSON.stringify({ email: email }));
-    } else {
-      localStorage.removeItem('rememberedLogin_v2');
-    }
-
     setSession(login, rememberMe);
     form.querySelector('button[type="submit"]').disabled = true;
     redirectForRole(login);
@@ -168,13 +160,6 @@ export function initRegister() {
     status.textContent = 'Solicitud enviada. Un administrador debe activar tu cuenta antes del primer ingreso.';
     status.className = 'success-msg';
     status.focus();
-  });
-}
-
-export function initLogout() {
-  document.querySelector('[data-action="logout"]')?.addEventListener('click', () => {
-    clearSession();
-    window.location.replace('index.html');
   });
 }
 

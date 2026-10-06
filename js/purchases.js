@@ -1,6 +1,5 @@
 import { currentLogin, currentClient, readDb } from './storage.js';
 import { esc, fmtDate, fmtMoney } from './utils.js';
-import { icon } from './icons.js';
 
 export function initPurchases() {
   const table = document.getElementById('purchasesBody');
@@ -9,6 +8,13 @@ export function initPurchases() {
   const login = currentLogin();
   if (!login) return;
   const isAdmin = login.role === 'Admin';
+
+  if (isAdmin) {
+    const title = document.getElementById('purchasesTitle');
+    const scope = document.getElementById('purchasesScope');
+    if (title) title.textContent = 'Ventas de la casa';
+    if (scope) scope.textContent = 'Todos los pedidos confirmados por los lectores.';
+  }
 
   const render = () => {
     const db = readDb();

@@ -51,16 +51,16 @@ export function initDetails() {
         </div>
       </section>
       <section class="panel">
-        <div class="panel-head"><h2>Reglas aplicadas</h2></div>
-        <div class="panel-body"><p class="mb-0 muted">La compra guarda encabezado y detalles, registra el valor unitario histórico y descuenta el stock dentro de una sola escritura de datos.</p></div>
+        <div class="panel-head"><h2>Sobre este pedido</h2></div>
+        <div class="panel-body"><p class="mb-0 muted">Cada libro conserva el precio que tenía al confirmar la compra, aunque luego cambie en el catálogo. Los ejemplares se apartaron en ese mismo momento.</p></div>
       </section>
     </div>
     <section class="panel mt-3">
-      <div class="panel-head"><h2>Detalle de productos</h2></div>
+      <div class="panel-head"><h2>Libros del pedido</h2></div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>ID</th><th>Producto</th><th class="numeric">Cantidad</th><th class="numeric">Valor unitario</th><th class="numeric">Subtotal</th></tr></thead>
-          <tbody>${rows || `<tr><td colspan="5"><div class="empty"><strong>Sin detalles</strong>Este encabezado no tiene productos asociados.</div></td></tr>`}</tbody>
+          <thead><tr><th>ID</th><th>Producto</th><th class="numeric">Cantidad</th><th class="numeric">Precio unitario</th><th class="numeric">Subtotal</th></tr></thead>
+          <tbody>${rows || `<tr><td colspan="5"><div class="empty"><strong>Sin libros</strong>Este pedido no tiene libros registrados.</div></td></tr>`}</tbody>
           <tfoot><tr><td colspan="4" class="numeric"><strong>Total</strong></td><td class="numeric"><strong>${fmtMoney(header.total)}</strong></td></tr></tfoot>
         </table>
       </div>

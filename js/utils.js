@@ -1,12 +1,12 @@
 import { APP_CONFIG } from './config.js';
 
-export const money = new Intl.NumberFormat('es-CO', {
+const money = new Intl.NumberFormat('es-CO', {
   style: 'currency',
   currency: 'COP',
   maximumFractionDigits: 0
 });
-export const dateFmt = new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
-export const dateOnlyFmt = new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium' });
+const dateFmt = new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
+const dateOnlyFmt = new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium' });
 
 export function fmtMoney(value) {
   const number = Number(value);
@@ -33,10 +33,6 @@ export function esc(value) {
 
 export function pageName() {
   return document.body.dataset.page || '';
-}
-
-export function nowIso() {
-  return new Date().toISOString();
 }
 
 export function showToast(title, message, kind = 'success') {
@@ -72,11 +68,6 @@ export function focusFirstError(ids) {
   if (id) document.getElementById(id)?.focus();
 }
 
-export function getNumberValue(id) {
-  const input = document.getElementById(id);
-  return input ? Number(input.value) : NaN;
-}
-
 export function isSafePositiveInteger(value, max = Number.MAX_SAFE_INTEGER) {
   return Number.isSafeInteger(value) && value >= 1 && value <= max;
 }
@@ -89,7 +80,7 @@ export function isFinitePositiveNumber(value, max = Number.MAX_SAFE_INTEGER) {
   return Number.isFinite(value) && value > 0 && value <= max;
 }
 
-export function isValidId(value) {
+function isValidId(value) {
   return Number.isSafeInteger(Number(value)) && Number(value) >= 1;
 }
 
@@ -125,10 +116,6 @@ export function validateRole(role) {
   return APP_CONFIG.roles.includes(role);
 }
 
-export function validateStatus(status) {
-  return APP_CONFIG.statuses.includes(status);
-}
-
 export function isSafeProduct(product) {
   return product &&
     isValidId(product.id) &&
@@ -140,8 +127,4 @@ export function isSafeProduct(product) {
     product.descripcion.trim().length <= APP_CONFIG.limits.descriptionMax &&
     isFinitePositiveNumber(Number(product.valorUnitario), APP_CONFIG.limits.priceMax) &&
     isSafeNonNegativeInteger(Number(product.stock), APP_CONFIG.limits.stockMax);
-}
-
-export function safeTotal(lines) {
-  return lines.reduce((sum, line) => sum + line.subtotal, 0);
 }

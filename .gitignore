@@ -22,3 +22,10 @@ npm-debug.log*
 
 # Carpeta de caché
 .cache/
+
+# Herramientas de diseño y asistentes de IA (archivos de trabajo locales)
+.impeccable/
+.claude/
+CLAUDE.md
+PRODUCT.md
+DESIGN.md

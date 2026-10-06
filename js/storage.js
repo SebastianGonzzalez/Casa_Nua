@@ -23,7 +23,7 @@ function normalizeDb(raw) {
   };
 }
 
-export function blankDb() {
+function blankDb() {
   return clone(EMPTY_DB);
 }
 
@@ -66,7 +66,7 @@ export function writeDb(db) {
   localStorage.setItem(APP_CONFIG.dbKey, JSON.stringify(normalized));
 }
 
-export function getSession() {
+function getSession() {
   try {
     const storedSession = localStorage.getItem(APP_CONFIG.sessionKey);
     if (storedSession) {
@@ -93,15 +93,6 @@ export function getRememberedLogin() {
   } catch {
     return null;
   }
-}
-
-export function setRememberedLogin(email, rememberMe) {
-  if (!email || !rememberMe) {
-    localStorage.removeItem('rememberedLogin_v2');
-    return;
-  }
-
-  localStorage.setItem('rememberedLogin_v2', JSON.stringify({ email }));
 }
 
 export function setSession(login, rememberMe = true) {
@@ -137,50 +128,78 @@ export function nowIso() {
   return new Date().toISOString();
 }
 
+const BOOK_PRODUCTS = [
+  { id: 1, nombre: 'Atlas de relatos', descripcion: 'Antología de cuentos breves para leer en una tarde y volver a abrir.', valorUnitario: 32000, stock: 18 },
+  { id: 2, nombre: 'Poesía en la tarde', descripcion: 'Selección de poemas íntimos y luminosos para una lectura contemplativa.', valorUnitario: 54000, stock: 9 },
+  { id: 3, nombre: 'Historia de la lectura', descripcion: 'Un recorrido visual y crítico por la evolución de los libros y sus lectores.', valorUnitario: 41000, stock: 15 },
+  { id: 4, nombre: 'La sombra del viento', descripcion: 'Edición cuidada de una novela de misterio, memoria y pasión por los libros.', valorUnitario: 48000, stock: 24 },
+  { id: 5, nombre: 'Ficciones', descripcion: 'Colección esencial de textos de Borges con edición elegante y papel de alto gramaje.', valorUnitario: 62000, stock: 6 },
+  { id: 6, nombre: 'El alquimista', descripcion: 'Edición especial con sobrecubierta y diseño editorial inspirador.', valorUnitario: 39000, stock: 12 }
+];
+
+function hasBookCatalog(products) {
+  return products.some(product => {
+    const haystack = `${product.nombre || ''} ${product.descripcion || ''}`.toLowerCase();
+    return /(libro|poes|novela|ensayo|atlas|lectura|biblioteca|edición|antología|cuento|literatura|borges|alquimista)/i.test(haystack);
+  });
+}
+
+function hasLegacyCatalog(products) {
+  return products.some(product => {
+    const haystack = `${product.nombre || ''} ${product.descripcion || ''}`.toLowerCase();
+    return /(cuaderno|lápiz|taza|agenda|bolso|cerámica|papelería|papelera|material|escritorio|resaltador|borrador)/i.test(haystack);
+  });
+}
+
 export function seedDatabase() {
   const current = readDb();
-  if (current.login.length || current.producto.length) return;
 
-  const createdAt = nowIso();
-  const adminLogin = {
-    id: 1,
-    email: 'admin@tienda.local',
-    password: 'Admin123!',
-    role: 'Admin',
-    status: 'Activo',
-    createdAt
-  };
-  const clientLogin = {
-    id: 2,
-    email: 'cliente@tienda.local',
-    password: 'Cliente123!',
-    role: 'Cliente',
-    status: 'Activo',
-    createdAt
-  };
+  const needsBookCatalog = current.producto.length === 0 || hasLegacyCatalog(current.producto) || !hasBookCatalog(current.producto);
 
-  writeDb({
-    login: [adminLogin, clientLogin],
-    cliente: [{
+  if (!current.login.length && !current.producto.length) {
+    const createdAt = nowIso();
+    const adminLogin = {
       id: 1,
-      loginId: 2,
-      nombre: 'Cliente',
-      apellido: 'Demo',
-      correo: clientLogin.email,
-      fecha: createdAt,
-      complete: true
-    }],
-    producto: [
-      { id: 1, nombre: 'Cuaderno Atlas', descripcion: 'Tapa dura, 120 hojas y formato A5.', valorUnitario: 28000, stock: 18 },
-      { id: 2, nombre: 'Lámpara Nube', descripcion: 'Luz cálida regulable para escritorio.', valorUnitario: 79000, stock: 9 },
-      { id: 3, nombre: 'Taza Terra', descripcion: 'Cerámica artesanal con acabado mate.', valorUnitario: 42000, stock: 15 },
-      { id: 4, nombre: 'Agenda Línea', descripcion: 'Planificador semanal, encuadernación flexible.', valorUnitario: 35000, stock: 24 },
-      { id: 5, nombre: 'Bolso Campo', descripcion: 'Textil resistente, bolsillo interior y asa larga.', valorUnitario: 118000, stock: 6 },
-      { id: 6, nombre: 'Vela Estudio', descripcion: 'Aroma amaderado, cera vegetal y 40 horas.', valorUnitario: 52000, stock: 12 }
-    ],
-    encabezado: [],
-    detalles: []
-  });
+      email: 'admin@tienda.local',
+      password: 'Admin123!',
+      role: 'Admin',
+      status: 'Activo',
+      createdAt
+    };
+    const clientLogin = {
+      id: 2,
+      email: 'cliente@tienda.local',
+      password: 'Cliente123!',
+      role: 'Cliente',
+      status: 'Activo',
+      createdAt
+    };
+
+    writeDb({
+      login: [adminLogin, clientLogin],
+      cliente: [{
+        id: 1,
+        loginId: 2,
+        nombre: 'Cliente',
+        apellido: 'Demo',
+        correo: clientLogin.email,
+        fecha: createdAt,
+        complete: true
+      }],
+      producto: BOOK_PRODUCTS,
+      encabezado: [],
+      detalles: []
+    });
+    return;
+  }
+
+  if (needsBookCatalog) {
+    const nextDb = {
+      ...current,
+      producto: BOOK_PRODUCTS.map(item => ({ ...item }))
+    };
+    writeDb(nextDb);
+  }
 }
 
 export function currentLogin() {

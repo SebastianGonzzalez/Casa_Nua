@@ -1,7 +1,7 @@
 import { APP_CONFIG } from './config.js';
 import {
   normalizeEmail, normalizeText, validateEmail, validatePersonName,
-  validatePassword, validateRole, validateStatus,
+  validatePassword, validateRole,
   isSafeProduct, isSafePositiveInteger, isSafeNonNegativeInteger,
   isFinitePositiveNumber
 } from './utils.js';
@@ -91,10 +91,6 @@ export function validateRoleInput(role) {
   return validateRole(role) ? null : 'El rol seleccionado no es válido.';
 }
 
-export function validateStatusInput(status) {
-  return validateStatus(status) ? null : 'El estado de la cuenta no es válido.';
-}
-
 export function validatePurchaseLines(db, entries) {
   if (!Array.isArray(entries) || entries.length === 0) {
     return { valid: false, message: 'El carrito está vacío.' };
@@ -149,54 +145,4 @@ export function emailAlreadyExists(db, email, excludedLoginId = null) {
     typeof login.email === 'string' &&
     normalizeEmail(login.email) === normalized
   );
-}
-
-export function validateDatabaseRelations(db) {
-  const errors = [];
-  const loginIds = new Set();
-
-  for (const login of db.login) {
-    if (!isSafePositiveInteger(Number(login.id))) errors.push('Existe un login con ID inválido.');
-    if (loginIds.has(login.id)) errors.push(`ID de login duplicado: ${login.id}.`);
-    loginIds.add(login.id);
-    if (!validateEmail(login.email)) errors.push(`Correo inválido en login #${login.id}.`);
-    if (!validateRole(login.role)) errors.push(`Rol inválido en login #${login.id}.`);
-    if (!validateStatus(login.status)) errors.push(`Estado inválido en login #${login.id}.`);
-  }
-
-  const loginIdSet = new Set(db.login.map(item => item.id));
-  const clientIds = new Set();
-  for (const client of db.cliente) {
-    if (!isSafePositiveInteger(Number(client.id))) errors.push('Existe un cliente con ID inválido.');
-    if (clientIds.has(client.id)) errors.push(`ID de cliente duplicado: ${client.id}.`);
-    clientIds.add(client.id);
-    if (!loginIdSet.has(client.loginId)) errors.push(`Cliente #${client.id} referencia un login inexistente.`);
-  }
-
-  const productIds = new Set();
-  for (const product of db.producto) {
-    if (!isSafeProduct(product)) errors.push(`Producto #${product.id} contiene datos inválidos.`);
-    if (productIds.has(product.id)) errors.push(`ID de producto duplicado: ${product.id}.`);
-    productIds.add(product.id);
-  }
-
-  const headerIds = new Set();
-  for (const header of db.encabezado) {
-    if (!isSafePositiveInteger(Number(header.id))) errors.push('Existe un encabezado con ID inválido.');
-    if (headerIds.has(header.id)) errors.push(`ID de encabezado duplicado: ${header.id}.`);
-    headerIds.add(header.id);
-    if (!clientIds.has(header.idCliente)) errors.push(`Encabezado #${header.id} referencia un cliente inexistente.`);
-    if (!Number.isSafeInteger(Number(header.total)) || Number(header.total) < 0) errors.push(`Total inválido en encabezado #${header.id}.`);
-  }
-
-  for (const detail of db.detalles) {
-    if (!headerIds.has(detail.idEncabezado)) errors.push(`Detalle #${detail.id} referencia un encabezado inexistente.`);
-    // El producto puede haber sido eliminado del catálogo después de la compra.
-    // El detalle conserva el snapshot económico para mantener el historial.
-    if (!isSafePositiveInteger(Number(detail.cantidad), APP_CONFIG.limits.quantityMax)) errors.push(`Cantidad inválida en detalle #${detail.id}.`);
-    if (!Number.isSafeInteger(Number(detail.valor)) || Number(detail.valor) < 0) errors.push(`Subtotal inválido en detalle #${detail.id}.`);
-    if (!Number.isSafeInteger(Number(detail.valorUnitario)) || Number(detail.valorUnitario) <= 0) errors.push(`Valor unitario inválido en detalle #${detail.id}.`);
-  }
-
-  return errors;
 }

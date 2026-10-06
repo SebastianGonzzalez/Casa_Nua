@@ -2,7 +2,6 @@ export const APP_CONFIG = Object.freeze({
   dbKey: 'parcialCompraDB_v2',
   sessionKey: 'parcialCompraSession_v2',
   roles: Object.freeze(['Admin', 'Cliente']),
-  statuses: Object.freeze(['Pendiente', 'Activo']),
   pages: Object.freeze({
     public: ['login', 'register'],
     adminOnly: ['clients', 'users', 'products']

@@ -1,6 +1,6 @@
-import { seedDatabase } from './storage.js';
+import { seedDatabase, currentLogin } from './storage.js';
 import { pageName } from './utils.js';
-import { guardPage, initLogin, initRegister } from './auth.js';
+import { guardPage, initLogin, initRegister, redirectForRole } from './auth.js';
 import { initProfile } from './profile.js';
 import { buildShell } from './shell.js';
 import { initDashboard } from './dashboard.js';
@@ -10,103 +10,42 @@ import { initProducts } from './products.js';
 import { initPurchase } from './purchase.js';
 import { initPurchases } from './purchases.js';
 import { initDetails } from './details.js';
-import { currentClient, currentLogin } from './storage.js';
+
+// La animación de entrada más larga del acceso dura ~700 ms; la clase se retira después.
+const AUTH_ENTER_MS = 800;
+
+function isAuthPage(page = pageName()) {
+  return page === 'login' || page === 'register';
+}
 
 function triggerAuthAnimation() {
   const body = document.body;
   if (!body) return;
 
-  body.classList.remove('auth-page-enter', 'auth-page-exit');
+  body.classList.remove('auth-page-enter');
   void body.offsetWidth;
   body.classList.add('auth-page-enter');
   window.setTimeout(() => {
     body.classList.remove('auth-page-enter');
-  }, 420);
-}
-
-function setAuthView(view) {
-  const panels = document.querySelectorAll('.auth-panel');
-  const toggles = document.querySelectorAll('[data-auth-toggle]');
-
-  panels.forEach(panel => {
-    const isActive = panel.dataset.authPanel === view;
-    panel.classList.toggle('active', isActive);
-  });
-
-  toggles.forEach(link => {
-    const isCurrent = link.dataset.authToggle === view;
-    link.setAttribute('aria-current', isCurrent ? 'page' : 'false');
-  });
-
-  const formTitle = document.getElementById('authTitle');
-  if (formTitle) {
-    formTitle.textContent = view === 'register'
-      ? '¡Únete a la\nCasa del Libro!'
-      : '¡Bienvenido a la\nCasa del Libro!';
-  }
-}
-
-function redirectToSessionHome(login = currentLogin()) {
-  if (!login) return;
-  const client = currentClient();
-  const target = login.role === 'Admin'
-    ? 'dashboard.html'
-    : (client?.complete ? 'dashboard.html' : 'profile.html');
-  window.location.replace(target);
-}
-
-function enforceSessionState() {
-  const page = pageName();
-  const login = currentLogin();
-  const isAuthPage = page === 'login' || page === 'register';
-
-  if (login && isAuthPage) {
-    redirectToSessionHome(login);
-    return;
-  }
-
-  if (!login && !isAuthPage && page) {
-    window.location.replace('index.html');
-    return;
-  }
-
-  if (!login && isAuthPage) {
-    window.history.replaceState(null, '', 'index.html');
-  }
+  }, AUTH_ENTER_MS);
 }
 
 function start() {
   seedDatabase();
 
-  const page = pageName();
-  const isAuthPage = page === 'login' || page === 'register';
+  const role = currentLogin()?.role || 'Admin';
+  document.body.dataset.userRole = role === 'Cliente' ? 'Cliente' : 'Admin';
 
-  if (isAuthPage) {
+  const page = pageName();
+
+  if (isAuthPage(page)) {
     const login = currentLogin();
     if (login) {
-      redirectToSessionHome(login);
+      redirectForRole(login);
       return;
     }
     triggerAuthAnimation();
   }
-
-  const authLinks = document.querySelectorAll('[data-auth-toggle]');
-  authLinks.forEach(link => {
-    link.addEventListener('click', event => {
-      const target = link.dataset.authToggle;
-      if (!target) return;
-      event.preventDefault();
-      setAuthView(target);
-      document.body.classList.remove('auth-page-exit');
-      document.body.classList.add('auth-page-enter');
-      window.setTimeout(() => {
-        document.body.classList.remove('auth-page-enter');
-      }, 380);
-    });
-  });
-
-  const initialView = document.body.dataset.page === 'register' || window.location.hash === '#register' ? 'register' : 'login';
-  setAuthView(initialView);
 
   if (!guardPage(page)) return;
 
@@ -125,11 +64,17 @@ function start() {
 }
 
 document.addEventListener('DOMContentLoaded', start);
-window.addEventListener('pageshow', () => {
-  enforceSessionState();
 
-  const page = pageName();
-  if (page === 'login' || page === 'register') {
-    triggerAuthAnimation();
+// Al volver con el botón Atrás, el navegador puede restaurar la página desde su caché sin
+// ejecutar start(): ahí se revalida la sesión (por ejemplo, tras cerrar sesión).
+window.addEventListener('pageshow', event => {
+  if (!event.persisted) return;
+
+  const login = currentLogin();
+  if (isAuthPage()) {
+    if (login) redirectForRole(login);
+    else triggerAuthAnimation();
+    return;
   }
+  if (!login) window.location.replace('index.html');
 });

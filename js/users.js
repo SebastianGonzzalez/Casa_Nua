@@ -29,7 +29,7 @@ export function initUsers() {
               <option value="Cliente">Cliente</option>
               <option value="Admin">Admin</option>
             </select>
-            <button class="btn small" type="button" data-activate="${user.id}"><span>Activar</span></button>
+            <button class="btn small success" type="button" data-activate="${user.id}">${icon.check}<span>Activar</span></button>
           </div>
         </td>
       </tr>`;

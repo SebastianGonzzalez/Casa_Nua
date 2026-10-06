@@ -1,8 +1,6 @@
-import { APP_CONFIG } from './config.js';
 import { readDb, writeDb, nextId } from './storage.js';
 import { esc, clearFieldErrors, focusFirstError, fmtMoney, setFieldError, showToast } from './utils.js';
 import { validateProductData } from './validators.js';
-import { icon } from './icons.js';
 
 export function initProducts() {
   const form = document.getElementById('productForm');

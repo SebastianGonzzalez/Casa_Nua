@@ -1,282 +1,404 @@
 # Casa Nua
 
-Sistema web de catálogo, gestión de usuarios y compras para una tienda de productos físicos. La aplicación permite a los clientes navegar productos, agregarlos al carrito, confirmar compras y consultar su historial, mientras que el administrador puede gestionar usuarios, productos y ventas desde un panel central.
+**Librería en línea con catálogo, carrito, control de inventario y administración de cuentas por roles, construida con HTML, CSS y JavaScript nativos.**
 
-La aplicación está construida con HTML, CSS y JavaScript puro, sin dependencias externas ni backend real. La persistencia se maneja con `localStorage`, por lo que funciona como una demostración funcional de un sistema de comercio digital en frontend.
+Casa Nua simula de punta a punta la operación de una librería independiente:
 
-## Características principales
+- **Cliente:** se registra, espera la aprobación de su cuenta, completa su perfil, elige libros, confirma su compra y consulta su historial.
+- **Administrador:** aprueba cuentas, asigna roles, mantiene el catálogo y revisa todas las ventas.
 
-- Autenticación y registro de usuarios.
-- Roles de administrador y cliente.
-- Activación de cuentas pendientes.
-- Gestión de productos con creación, edición y eliminación.
-- Control de inventario y precios.
-- Carrito de compras con cantidades y validaciones.
-- Confirmación de compras con actualización de stock.
-- Historial de compras por cliente y administrador.
-- Vista de detalle de cada compra.
-- Validaciones del lado del cliente para mejorar la integridad de los datos.
-- Interfaz responsive para desktop y móvil.
+Todo funciona en el navegador, sin backend ni dependencias. Los datos persisten en `localStorage`.
 
-## Tecnologías usadas
+> **Proyecto académico.** Casa Nua es una demostración funcional de frontend. No reemplaza un backend ni un sistema de autenticación seguro. Ver [Limitaciones conocidas](#limitaciones-conocidas).
 
-- HTML5
-- CSS3
-- JavaScript ES Modules
-- LocalStorage para persistencia
-- SVG inline para iconos
-- Live Server para ejecución local
+---
 
-## Estructura del proyecto
+## Contenido
 
-```text
-proyecto-parcial/
-├── css/
-│   └── styles.css
-├── js/
-│   ├── app.js
-│   ├── auth.js
-│   ├── clients.js
-│   ├── config.js
-│   ├── dashboard.js
-│   ├── details.js
-│   ├── icons.js
-│   ├── products.js
-│   ├── profile.js
-│   ├── purchase.js
-│   ├── purchases.js
-│   ├── shell.js
-│   ├── storage.js
-│   ├── users.js
-│   ├── utils.js
-│   └── validators.js
-├── index.html
-├── register.html
-├── dashboard.html
-├── profile.html
-├── users.html
-├── clients.html
-├── products.html
-├── purchase.html
-├── purchases.html
-├── details.html
-├── ENTREGA.md
-└── README.md
+1. [Características](#características)
+2. [Inicio rápido](#inicio-rápido)
+3. [Cuentas de demostración](#cuentas-de-demostración)
+4. [Roles y permisos](#roles-y-permisos)
+5. [Flujos principales](#flujos-principales)
+6. [Reglas de negocio](#reglas-de-negocio)
+7. [Validaciones](#validaciones)
+8. [Modelo de datos](#modelo-de-datos)
+9. [Arquitectura](#arquitectura)
+10. [Persistencia y sesión](#persistencia-y-sesión)
+11. [Diseño, accesibilidad y diseño adaptable](#diseño-accesibilidad-y-diseño-adaptable)
+12. [Reiniciar la demo](#reiniciar-la-demo)
+13. [Limitaciones conocidas](#limitaciones-conocidas)
+14. [Créditos](#créditos)
+
+---
+
+## Características
+
+**Para el cliente**
+- Registro con validación en vivo y aprobación posterior por un administrador.
+- Perfil obligatorio antes de la primera compra.
+- Catálogo con existencias visibles, selección de cantidad y carrito lateral.
+- Carrito editable: cambiar cantidades, quitar un libro o vaciarlo, con el total recalculado al instante.
+- Confirmación de compra con descuento de inventario e historial con detalle por pedido.
+
+**Para el administrador**
+- Panel con indicadores: clientes, solicitudes pendientes, tamaño del catálogo, ejemplares en inventario y ventas acumuladas.
+- Aprobación de cuentas pendientes y asignación de rol (Cliente o Admin).
+- Gestión del catálogo: crear, editar y eliminar libros, con confirmación antes de borrar.
+- Listado de clientes con el estado de su perfil y de su cuenta.
+- Consulta de todas las ventas y del detalle de cada pedido.
+
+**Técnicas**
+- Cero dependencias y sin paso de compilación: HTML5, CSS3 y módulos ES nativos.
+- Control de acceso por rol en cada página.
+- Precio histórico: cada línea de compra guarda el precio del día en que se confirmó.
+- Escritura atómica de la compra: el encabezado, las líneas y el descuento de inventario se guardan juntos o no se guarda nada.
+- Diseño adaptable (escritorio, tableta y móvil), foco visible con teclado, avisos accesibles y soporte para movimiento reducido.
+- Sistema de diseño basado en variables CSS: colores, tamaños de letra y radios definidos una sola vez en `:root`.
+
+---
+
+## Inicio rápido
+
+### Requisitos
+
+- Un navegador moderno: Chrome, Edge, Firefox o Safari en versiones recientes.
+- Un servidor web local. La aplicación usa módulos ES (`import` / `export`), que los navegadores bloquean si el archivo se abre directamente con `file://`.
+- Conexión a internet para cargar las tipografías (Google Fonts) y las fotografías de fondo (Unsplash). Sin conexión, la aplicación funciona igual, pero con fuentes del sistema y fondo liso.
+
+### Opción 1: Live Server (recomendada)
+
+1. Abre la carpeta del proyecto en Visual Studio Code.
+2. Instala la extensión **Live Server**.
+3. Haz clic derecho sobre `index.html` y elige **Open with Live Server**.
+
+### Opción 2: cualquier servidor estático
+
+Desde la raíz del proyecto, ejecuta uno de estos comandos:
+
+```bash
+# Con Node.js
+npx serve .
+
+# Con Python 3
+python -m http.server 5500
 ```
 
-## Flujos principales
+Luego abre la dirección que indique la consola (por ejemplo, `http://localhost:5500`).
 
-### 1. Registro e inicio de sesión
+### Clonar el repositorio
 
-La aplicación inicia en `index.html`, donde el usuario puede iniciar sesión o dirigirse al registro.
+```bash
+git clone https://github.com/SebastianGonzzalez/Casa_Nua.git
+cd Casa_Nua
+```
 
-En `register.html`, el cliente crea una cuenta con:
+La primera vez que se abre la aplicación se cargan automáticamente dos cuentas de demostración y un catálogo de seis libros.
 
-- nombre
-- apellido
-- correo
-- contraseña
-- confirmación de contraseña
+---
 
-La cuenta se crea con estado pendiente y rol cliente. El administrador luego valida la cuenta desde la vista de usuarios para habilitar el acceso.
+## Cuentas de demostración
 
-### 2. Panel de administración
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Administrador | `admin@tienda.local` | `Admin123!` |
+| Cliente | `cliente@tienda.local` | `Cliente123!` |
 
-El administrador entra al dashboard y puede:
+La cuenta de cliente ya está activa y con el perfil completo, así que puede comprar de inmediato. Para probar el flujo completo de una cuenta nueva:
 
-- ver estadísticas generales,
-- gestionar usuarios,
-- revisar solicitudes pendientes,
-- crear y editar productos,
-- consultar compras registradas,
-- revisar inventario y ventas totales.
+1. Regístrate desde la pantalla de inicio.
+2. Entra como administrador y apruébala en **Solicitudes**.
+3. Vuelve a entrar con la cuenta nueva.
 
-### 3. Gestión de productos
-
-Desde `products.html` el administrador puede:
-
-- crear un producto,
-- editar su nombre, descripción, precio y stock,
-- eliminarlo del catálogo si corresponde,
-- revisar el inventario disponible.
-
-Cada producto tiene:
-
-- nombre
-- descripción
-- valor unitario
-- stock actual
-
-### 4. Compra por parte del cliente
-
-Desde `purchase.html`, el cliente puede ver el catálogo completo y seleccionar la cantidad de cada producto. Luego el sistema:
-
-- valida que la cantidad sea válida,
-- valida que no supere el stock,
-- agrega productos al carrito,
-- permite cambiar cantidades,
-- recalcula el total final.
-
-### 5. Confirmación de la compra
-
-Cuando el cliente confirma la compra, el sistema valida de nuevo los datos y genera:
-
-- un encabezado de compra con fecha y total,
-- uno o varios detalles por cada producto agregado,
-- un descuento del stock real disponible.
-
-Esto permite que la compra quede registrada con su historial y que el inventario se actualice automáticamente.
-
-### 6. Historial y detalle
-
-Desde `purchases.html` el usuario puede consultar sus compras. En `details.html` se puede ver el detalle de cada compra con:
-
-- cliente
-- correo
-- fecha
-- total
-- productos incluidos
-- cantidades
-- valor unitario histórico
-- subtotal por línea
-
-Esto garantiza que el detalle de una compra permanezca consistente aunque el producto cambie de precio o sea eliminado después.
+---
 
 ## Roles y permisos
 
-### Administrador
+| Página | Archivo | Cliente | Administrador |
+|---|---|:---:|:---:|
+| Inicio de sesión y registro | `index.html`, `register.html` | Público | Público |
+| Inicio (panel) | `dashboard.html` | ✓ | ✓ |
+| Mi perfil | `profile.html` | ✓ | — |
+| Comprar | `purchase.html` | ✓ (con perfil completo) | — |
+| Historial de compras | `purchases.html` | Solo las propias | Todas |
+| Detalle de compra | `details.html` | Solo las propias | Todas |
+| Clientes | `clients.html` | — | ✓ |
+| Solicitudes de acceso | `users.html` | — | ✓ |
+| Productos | `products.html` | — | ✓ |
 
-Puede acceder a:
+Cada página verifica la sesión al cargar ([js/auth.js](js/auth.js), `guardPage`):
 
-- dashboard
-- clientes
-- solicitudes de usuarios
-- productos
-- compras
+- Sin sesión, redirige al inicio de sesión.
+- Con una cuenta inactiva o con rol inválido, cierra la sesión.
+- Si un cliente intenta abrir una página de administrador, lo envía a su panel.
+- Si un cliente sin perfil completo intenta comprar, lo envía a su perfil.
 
-Tiene permisos para:
+---
 
-- activar o desactivar cuentas,
-- asignar roles,
-- crear productos,
-- editar el inventario,
-- revisar todas las ventas.
+## Flujos principales
 
-### Cliente
+### 1. Registro y aprobación
 
-Puede acceder a:
+1. El visitante se registra con nombre, apellido, correo, contraseña y confirmación.
+2. La cuenta queda con rol **Cliente** y estado **Pendiente**. Mientras esté pendiente no puede iniciar sesión, y el formulario le explica por qué.
+3. Un administrador abre **Solicitudes**, elige el rol (Cliente o Admin) y la activa.
 
-- dashboard
-- perfil
-- compra
-- historial de compras
+### 2. Inicio de sesión
 
-No puede acceder a las pantallas administrativas ni manipular datos de otros usuarios.
+- Con **Recordarme** marcado, la sesión sobrevive al cierre del navegador y el correo se precarga la próxima vez. Sin marcarlo, la sesión dura solo hasta cerrar la pestaña.
+- El administrador entra a su panel. El cliente entra a su panel si su perfil está completo; si no, a **Mi perfil**.
 
-## Usuarios de demostración
+### 3. Perfil
 
-### Administrador
+El cliente confirma nombre, apellido y correo. Al guardarlo, el perfil queda completo y se habilitan las compras. El correo no puede repetirse con otra cuenta.
 
-```text
-Correo: admin@tienda.local
-Contraseña: Admin123!
-```
+### 4. Compra
 
-### Cliente
+1. En **Comprar**, cada libro muestra precio y ejemplares disponibles.
+2. El cliente elige una cantidad y agrega el libro al carrito. Si pide más de lo disponible, la aplicación lo avisa y no lo agrega.
+3. En el carrito puede ajustar cantidades, quitar libros o vaciarlo. El total se recalcula al instante.
+4. Al confirmar, la aplicación valida todo de nuevo contra el inventario actual. Si es válido, guarda en una sola operación:
+   - el **encabezado** del pedido (cliente, fecha y total),
+   - una **línea de detalle** por libro, con su cantidad, precio unitario y subtotal,
+   - el **descuento** de los ejemplares vendidos.
+5. El cliente es redirigido al detalle del pedido recién creado.
 
-```text
-Correo: cliente@tienda.local
-Contraseña: Cliente123!
-```
+### 5. Historial y detalle
+
+- **Historial** lista los pedidos con número, cliente, fecha, cantidad de títulos y total.
+- **Detalle** muestra los datos del pedido y una tabla con cada libro, su cantidad, el precio unitario del día de la compra y el subtotal.
+
+### 6. Gestión del catálogo
+
+El administrador crea y edita libros (nombre, descripción, precio y ejemplares) desde un formulario validado. Para eliminar uno, la aplicación pide confirmación. Los cambios se reflejan de inmediato en la pantalla de compra.
+
+---
+
+## Reglas de negocio
+
+| Regla | Dónde se aplica |
+|---|---|
+| Una cuenta pendiente no puede iniciar sesión. | `initLogin` en [js/auth.js](js/auth.js) |
+| Un cliente no accede a páginas de administración. | `guardPage` en [js/auth.js](js/auth.js) |
+| Solo un cliente con perfil completo puede comprar. | `guardPage` y la confirmación de compra |
+| El carrito nunca supera los ejemplares disponibles. | `validateCartQuantity` en [js/validators.js](js/validators.js) |
+| La compra se confirma solo si todas sus líneas son válidas. | `validatePurchaseLines` en [js/validators.js](js/validators.js) |
+| Las existencias se descuentan al confirmar, no al agregar al carrito. | [js/purchase.js](js/purchase.js) |
+| Cada línea conserva el precio unitario histórico. | Campo `valorUnitario` en `detalles` |
+| No puede haber dos libros con el mismo nombre (sin distinguir mayúsculas). | [js/products.js](js/products.js) |
+| No puede haber dos cuentas con el mismo correo. | `emailAlreadyExists` en [js/validators.js](js/validators.js) |
+| Un cliente solo ve sus propios pedidos. | [js/purchases.js](js/purchases.js) y [js/details.js](js/details.js) |
+
+---
+
+## Validaciones
+
+Todos los límites viven en [js/config.js](js/config.js) y se pueden ajustar en un solo lugar.
+
+| Dato | Regla |
+|---|---|
+| Nombre y apellido | 2 a 60 caracteres; solo letras (con tildes y ñ), espacios, guiones y apóstrofes. |
+| Correo | Formato `nombre@dominio.ext`, máximo 120 caracteres; se normaliza a minúsculas y sin espacios. |
+| Contraseña | 8 a 128 caracteres, con al menos una letra y un número; la confirmación debe coincidir. |
+| Nombre de libro | Obligatorio; letras, números y puntuación básica (`' & ( ) . , -`). |
+| Descripción | 5 a 500 caracteres. |
+| Precio | Entero mayor que 0, hasta 999.999.999. |
+| Ejemplares | Entero de 0 a 1.000.000. |
+| Cantidad en el carrito | Entero positivo que no supere los ejemplares disponibles. |
+| Rol | Solo `Admin` o `Cliente`; el inicio de sesión solo admite cuentas en estado `Activo`. |
+| Totales | Subtotales y total deben ser enteros seguros (`Number.isSafeInteger`). |
+
+Los errores de formulario aparecen junto a cada campo y el foco salta al primer campo con error. Los demás resultados (compra confirmada, libro agregado, falta de existencias) se anuncian con avisos accesibles (`aria-live`).
+
+---
 
 ## Modelo de datos
 
-La aplicación trabaja con estas entidades principales:
+La base de datos es un único objeto JSON con cinco colecciones.
 
-- `login`: credenciales, rol y estado de la cuenta.
-- `cliente`: datos personales del cliente.
-- `producto`: catálogo con nombre, descripción, precio y stock.
-- `encabezado`: cabecera de una compra.
-- `detalles`: líneas de cada compra.
+```mermaid
+erDiagram
+    LOGIN ||--o| CLIENTE : "tiene perfil"
+    CLIENTE ||--o{ ENCABEZADO : "realiza"
+    ENCABEZADO ||--|{ DETALLES : "contiene"
+    PRODUCTO ||--o{ DETALLES : "aparece en"
 
-### Relaciones
+    LOGIN {
+        int id PK
+        string email
+        string password
+        string role "Admin | Cliente"
+        string status "Pendiente | Activo"
+        string createdAt "ISO 8601"
+    }
+    CLIENTE {
+        int id PK
+        int loginId FK
+        string nombre
+        string apellido
+        string correo
+        string fecha "ISO 8601"
+        bool complete
+    }
+    PRODUCTO {
+        int id PK
+        string nombre
+        string descripcion
+        int valorUnitario "COP"
+        int stock
+    }
+    ENCABEZADO {
+        int id PK
+        int idCliente FK
+        string fecha "ISO 8601"
+        int total "COP"
+    }
+    DETALLES {
+        int id PK
+        int idEncabezado FK
+        int idProducto FK
+        int cantidad
+        int valorUnitario "precio histórico"
+        int valor "subtotal"
+    }
+```
 
-- Un usuario de login puede tener asociado un cliente.
-- Un cliente puede tener muchas compras.
-- Una compra tiene varios detalles.
-- Un producto puede estar presente en varios detalles.
+- Los identificadores son enteros incrementales (`nextId`).
+- Las fechas se guardan en ISO 8601.
+- Los montos son pesos colombianos sin decimales y se muestran con `Intl.NumberFormat('es-CO')`.
 
-## Persistencia
+---
 
-La aplicación usa `localStorage` para guardar:
+## Arquitectura
 
-- la base de datos de la tienda,
-- la sesión del usuario actual,
-- los datos generados en demo.
+```text
+Casa_Nua/
+├── index.html          Inicio de sesión (incluye el panel de registro)
+├── register.html       Registro
+├── dashboard.html      Panel según el rol
+├── profile.html        Perfil del cliente
+├── purchase.html       Catálogo y carrito
+├── purchases.html      Historial de compras
+├── details.html        Detalle de una compra
+├── clients.html        Clientes (admin)
+├── users.html          Solicitudes de acceso (admin)
+├── products.html       Catálogo e inventario (admin)
+├── css/
+│   └── styles.css      Hoja de estilos única, basada en variables
+├── js/
+│   ├── app.js          Punto de entrada: carga inicial, guardas y arranque de cada página
+│   ├── config.js       Claves de almacenamiento, roles, estados y límites
+│   ├── storage.js      Lectura y escritura de la base, sesión y datos semilla
+│   ├── auth.js         Login, registro, guardas de página y activación de cuentas
+│   ├── validators.js   Reglas de negocio y validación de datos
+│   ├── utils.js        Formato de moneda y fecha, escape de HTML, avisos y ayudas de formulario
+│   ├── shell.js        Barra superior y navegación según el rol
+│   ├── icons.js        Íconos SVG en línea
+│   ├── dashboard.js    Indicadores y accesos rápidos
+│   ├── profile.js      Formulario de perfil
+│   ├── purchase.js     Catálogo, carrito y confirmación de compra
+│   ├── purchases.js    Historial
+│   ├── details.js      Detalle de compra
+│   ├── clients.js      Listado de clientes
+│   ├── users.js        Aprobación de cuentas
+│   └── products.js     Alta, edición y baja de productos
+└── README.md
+```
 
-Esto permite que el sistema mantenga su estado al recargar la página sin backend real.
+**Cómo arranca cada página.** Todas cargan el mismo `js/app.js`, que:
 
-## Validaciones que incluye el sistema
+1. siembra los datos de demostración si hace falta,
+2. aplica la guarda de acceso de la página,
+3. dibuja la barra de navegación según el rol,
+4. invoca todos los inicializadores (`initLogin`, `initPurchase`, etc.). Cada uno busca su elemento raíz en el DOM y no hace nada si no lo encuentra, así que una sola entrada sirve para todas las páginas.
 
-El proyecto valida datos importantes para evitar errores de negocio:
+**Seguridad de la interfaz.** Todo dato del usuario que se inserta en el HTML pasa por `esc()` ([js/utils.js](js/utils.js)), que escapa `& < > " '` para evitar inyección de HTML.
 
-- nombres vacíos
-- caracteres inválidos en nombres
-- correos inválidos
-- contraseñas débiles
-- cantidades negativas o fuera de rango
-- precios inválidos
-- stock insuficiente
-- productos duplicados
-- compra sin carrito
-- compra con cantidades mayores al stock disponible
-- acceso no autorizado a páginas
-- usuarios pendientes sin acceso
+---
 
-## Reglas del negocio
+## Persistencia y sesión
 
-- Un cliente no puede iniciar sesión si su cuenta está pendiente.
-- Un usuario cliente no puede entrar a vistas de administrador.
-- Un carrito no puede exceder el stock disponible.
-- La compra se confirma solo si todos los datos son válidos.
-- El stock se descuenta al confirmar la compra.
-- El historial de compra conserva el valor unitario histórico.
+| Clave | Almacén | Contenido |
+|---|---|---|
+| `parcialCompraDB_v2` | `localStorage` | Base de datos completa (las cinco colecciones). |
+| `parcialCompraSession_v2` | `localStorage` o `sessionStorage` | Sesión activa (`loginId`, rol y correo). Va a `localStorage` con **Recordarme** y a `sessionStorage` sin él. |
+| `rememberedLogin_v2` | `localStorage` | Correo precargado en el inicio de sesión. |
 
-## Cómo ejecutar el proyecto
+- Si existe una base de una versión anterior (`parcialCompraDB_v1`), se migra automáticamente y se reconstruye el precio unitario de las líneas antiguas.
+- Si los datos guardados están corruptos, la aplicación arranca con una base vacía en lugar de fallar.
 
-### Opción recomendada
+---
 
-1. Abrir la carpeta del proyecto en VS Code.
-2. Instalar la extensión Live Server.
-3. Abrir `index.html` con Live Server.
+## Diseño, accesibilidad y diseño adaptable
 
-### Requisito importante
+La identidad visual se inspira en "la biblioteca de noche":
 
-Como el proyecto usa módulos ES (`import` / `export`), conviene servirlo como sitio web local y no abrirlo directamente con `file://`.
+- Paneles de vidrio ahumado sobre fotografías de biblioteca.
+- Dorado como acento.
+- Playfair Display para títulos, Lato para la interfaz y Cormorant Garamond para cifras.
+
+Todos los colores, tamaños de letra y radios salen de variables CSS en `:root` ([css/styles.css](css/styles.css)).
+
+**Accesibilidad**
+- HTML semántico con `lang="es"`, regiones (`header`, `nav`, `main`) y enlace para saltar al contenido.
+- Foco visible con teclado: contorno dorado en botones y enlaces, y borde dorado en campos.
+- Objetivos táctiles de al menos 44 × 44 px.
+- Etiquetas en todos los campos y errores asociados a cada uno.
+- Avisos anunciados por lectores de pantalla (`aria-live`) y estado del menú móvil con `aria-expanded`.
+- Texto con contraste suficiente sobre los fondos oscuros.
+- Con `prefers-reduced-motion`, se desactivan las animaciones de entrada y los desplazamientos al pasar el cursor.
+
+**Diseño adaptable**
+
+| Ancho | Comportamiento |
+|---|---|
+| Más de 1050 px | Catálogo en 3 columnas; navegación con íconos y etiquetas. |
+| 841 a 1050 px | Catálogo en 2 columnas; navegación solo con etiquetas. |
+| 651 a 840 px | Menú desplegable; indicadores y paneles a 1 columna; carrito debajo del catálogo (que sigue en 2 columnas); fotos de fondo más livianas. |
+| 650 px o menos | Catálogo y formularios en 1 columna; márgenes reducidos. |
+
+---
 
 ## Reiniciar la demo
 
-Si quieres volver a un estado limpio, elimina el `localStorage` del sitio desde las herramientas del navegador.
+Para volver al estado inicial:
 
-Las claves principales son:
+1. Abre las herramientas de desarrollo del navegador (F12) y ve a **Application** (Chrome/Edge) o **Almacenamiento** (Firefox).
+2. En **Local Storage** y **Session Storage** del sitio, elimina las claves `parcialCompraDB_v2`, `parcialCompraSession_v2` y `rememberedLogin_v2`.
+3. Recarga la página. Las cuentas y el catálogo de demostración se vuelven a crear.
 
-- `parcialCompraDB_v2`
-- `parcialCompraSession_v2`
+También puedes pegar esto en la consola del navegador:
 
-## Alcance del proyecto
+```js
+['parcialCompraDB_v2', 'parcialCompraSession_v2', 'rememberedLogin_v2'].forEach(key => {
+  localStorage.removeItem(key);
+  sessionStorage.removeItem(key);
+});
+location.reload();
+```
 
-Este es un proyecto de demostración académica de frontend. No sustituye un backend real ni un sistema de autenticación segura para producción.
+---
 
-Su objetivo principal es mostrar un flujo completo de ecommerce académico con:
+## Limitaciones conocidas
 
-- registro,
-- autenticación,
-- permisos,
-- inventario,
-- carrito,
-- pagos simulados,
-- historial y detalle de compras.
+Son decisiones propias de una demo sin backend. En un sistema en producción habría que resolverlas:
 
-## Conclusión
+- **Seguridad:**
+  - Las contraseñas se guardan en texto plano en `localStorage`.
+  - Toda la lógica corre en el navegador, así que cualquier usuario con las herramientas de desarrollo puede leer o modificar los datos.
+  - La autenticación y los permisos sirven para demostrar el flujo, no para proteger información real.
+- **Datos locales:** la información vive solo en el navegador donde se creó. No se comparte entre equipos ni navegadores, y se pierde al borrar los datos del sitio.
+- **Pagos simulados:** confirmar una compra no procesa ningún pago.
+- **Recuperar contraseña:** no está implementado.
+- **Catálogo de ejemplo:** si el catálogo queda vacío, o no contiene ningún libro reconocible, la aplicación vuelve a cargar los seis libros de demostración en la siguiente carga de página.
+- **Libros eliminados:** al borrar un libro, los pedidos anteriores conservan su cantidad, precio y subtotal, pero el nombre aparece como "Producto eliminado", porque no se guarda una copia del nombre en cada línea.
+- **Recursos externos:** las tipografías y las fotografías de fondo se cargan desde Google Fonts y Unsplash, así que requieren conexión.
 
-Casa Nua es una aplicación demo de gestión de tienda en la que el usuario puede interactuar con un catálogo, comprar productos y manejar su historial, mientras el administrador administra usuarios e inventario. El sistema está diseñado para mostrar claramente el funcionamiento de un ecommerce básico con validaciones, control de permisos y persistencia local.
+---
+
+## Créditos
+
+- **Desarrollo:** [SebastianGonzzalez](https://github.com/SebastianGonzzalez)
+- **Tipografías:** [Playfair Display](https://fonts.google.com/specimen/Playfair+Display), [Lato](https://fonts.google.com/specimen/Lato) y [Cormorant Garamond](https://fonts.google.com/specimen/Cormorant+Garamond), vía Google Fonts.
+- **Fotografías de fondo:** [Unsplash](https://unsplash.com).
+- **Íconos:** SVG propios en línea ([js/icons.js](js/icons.js)).

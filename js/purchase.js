@@ -1,4 +1,3 @@
-import { APP_CONFIG } from './config.js';
 import { readDb, writeDb, nextId, currentClient, nowIso } from './storage.js';
 import { esc, fmtMoney, showToast } from './utils.js';
 import { validateCartQuantity, validatePurchaseLines } from './validators.js';
@@ -32,19 +31,25 @@ export function initPurchase() {
     sanitizeCartAgainstStock();
     const db = readDb();
 
+    // Después de la primera pintura, los re-renders no repiten la animación de entrada.
+    if (catalog.dataset.rendered) catalog.classList.add('is-settled');
+    catalog.dataset.rendered = 'true';
+
     catalog.innerHTML = db.producto.map(product => {
       const selected = cart.get(product.id)?.cantidad || 1;
       const max = product.stock;
       return `
         <article class="panel product-card">
           <div class="product-top">
-            <div><span class="product-id">Producto #${product.id}</span><h3>${esc(product.nombre)}</h3></div>
-            <span class="badge ${max > 0 ? 'success' : 'danger'}">${max > 0 ? `${max} disponibles` : 'Agotado'}</span>
+            <div class="product-meta">
+              <h3>${esc(product.nombre)}</h3>
+              <span class="badge ${max > 0 ? 'success' : 'danger'}">${max > 0 ? `${max} disponibles` : 'Agotado'}</span>
+            </div>
           </div>
           <p class="product-desc">${esc(product.descripcion)}</p>
           <div class="product-price">${fmtMoney(product.valorUnitario)}</div>
           <div class="actions">
-            <label class="field" style="flex:1;min-width:120px">
+            <label class="field">
               <span class="helper">Cantidad</span>
               <input class="input qty-input" data-product="${product.id}" type="number" inputmode="numeric" min="1" max="${max}" step="1" value="${Math.max(1, Math.min(selected, max || 1))}" ${max === 0 ? 'disabled' : ''} aria-label="Cantidad de ${esc(product.nombre)}">
             </label>
@@ -66,7 +71,8 @@ export function initPurchase() {
         <div class="cart-item">
           <div><strong>${esc(product.nombre)}</strong><small>${fmtMoney(product.valorUnitario)} por unidad · máximo ${product.stock}</small></div>
           <div class="qty-control">
-            <input class="input cart-qty" data-cart-id="${product.id}" type="number" min="1" max="${product.stock}" step="1" value="${cantidad}" aria-label="Cantidad de ${esc(product.nombre)} en el carrito">
+            <input class="input cart-qty" data-cart-id="${product.id}" type="number" inputmode="numeric" min="1" max="${product.stock}" step="1" value="${cantidad}" aria-label="Cantidad de ${esc(product.nombre)} en el carrito">
+            <button class="btn secondary cart-remove" type="button" data-remove="${product.id}" aria-label="Quitar ${esc(product.nombre)} del carrito" title="Quitar">${icon.trash}</button>
           </div>
         </div>`).join('')
       : `<div class="empty"><strong>Tu carrito está vacío</strong>Agrega productos del catálogo para comenzar.</div>`;
@@ -144,6 +150,19 @@ export function initPurchase() {
     renderCart();
   });
 
+  cartList.addEventListener('click', event => {
+    const button = event.target.closest('[data-remove]');
+    if (!button) return;
+
+    const id = Number(button.dataset.remove);
+    const product = readDb().producto.find(p => p.id === id);
+    cart.delete(id);
+    renderCatalog();
+    renderCart();
+    showToast('Quitado del carrito', `${product?.nombre || 'El libro'} ya no está en tu compra.`);
+    (cartList.querySelector('[data-remove]') || clearButton).focus();
+  });
+
   clearButton.addEventListener('click', () => {
     cart.clear();
     renderCatalog();
@@ -153,8 +172,11 @@ export function initPurchase() {
   confirmButton.addEventListener('click', () => {
     const client = currentClient();
     if (!client?.complete) {
-      showToast('Completa tu perfil', 'Guarda tus datos personales antes de confirmar una compra.', 'error');
-      window.location.href = 'profile.html';
+      showToast('Completa tu perfil', 'Antes de confirmar necesitamos tus datos. Te llevamos a tu perfil…', 'error');
+      confirmButton.disabled = true;
+      window.setTimeout(() => {
+        window.location.href = 'profile.html';
+      }, 2200);
       return;
     }
 
